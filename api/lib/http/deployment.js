@@ -8,7 +8,7 @@ const router = express.Router()
 const k8s = require('models/k8s')
 
 router.get('/', (req, res) => {
-  return k8s.getPods()
+  return k8s.pods.getAll()
   .then(response => {
     const pods = response.pods
       .filter(x => x.objectMeta.namespace === 'default')
@@ -24,15 +24,16 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
   // TODO: Switch this to a  `deployment` once API is updated
   const name = 'test--wwwwwooooo----name-' + Date.now()
-  return k8s.createReplicationController({
+  return k8s.replicationController.create({
     name,
-    image: 'localhost:5000/build_66'
+    image: 'localhost:5000/build_66',
+    containerPort: 80
   })
-  .tap(() => {
-    return k8s.createService({ name: `${name}-service`, selector: { name }, targetPort: 80, port: 6767 })
-  })
-  .then(response => {
-    return res.json(response)
+  .then(replicationController => {
+    return k8s.service.create({ name: `${name}-service`, selector: { name }, targetPort: 80, port: 6767 })
+    .then(service => {
+      return res.json({ replicationController, service })
+    })
   })
 })
 
