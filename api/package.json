@@ -1,0 +1,19 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "knexfile.js",
+  "dependencies": {
+    "bluebird": "^3.4.6",
+    "body-parser": "^1.15.2",
+    "dockerode": "^2.3.1",
+    "express": "^4.14.0",
+    "request": "^2.76.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start-http": "NODE_PATH=./lib node lib/http/index.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
