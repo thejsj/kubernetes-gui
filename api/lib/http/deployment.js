@@ -30,7 +30,7 @@ router.post('/', (req, res) => {
     containerPort: 80
   })
   .then(replicationController => {
-    return k8s.service.create({ name: `${name}-service`, selector: { name }, targetPort: 80, port: 6767 })
+    return k8s.service.create({ name: `${name}-service`, selector: { name }, ports: [ { port: 6767, targetPort: 80 } ] })
     .then(service => {
       return res.json({ replicationController, service })
     })

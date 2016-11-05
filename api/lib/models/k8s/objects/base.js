@@ -2,6 +2,9 @@
 
 const Promise = require('bluebird')
 const request = require('request')
+const joi = require('joi')
+
+const errors = require('../errors')
 
 const _name_ = Symbol('name')
 const _urlName_ = Symbol('urlName')
@@ -81,6 +84,16 @@ module.exports = class BaseObject {
       return response
     }
     return res.body
+  }
+
+  static validatePreTransform (value, schema) {
+    return joi.validateAsync(value, schema)
+    .catch(err => {
+      if (err.isJoi) {
+        throw new errors.ValidationError(err.message)
+      }
+      throw err
+    })
   }
 
 }

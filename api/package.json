@@ -9,11 +9,15 @@
     "dockerode": "^2.3.1",
     "express": "^4.14.0",
     "joi": "^9.2.0",
+    "lodash": "^4.16.6",
     "request": "^2.76.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  },
   "scripts": {
-    "start-http": "NODE_PATH=./lib node lib/http/index.js"
+    "start-http": "NODE_PATH=./lib node lib/http/index.js",
+    "dev-http": "NODE_PATH=./lib nodemon lib/http/index.js"
   },
   "author": "",
   "license": "ISC"

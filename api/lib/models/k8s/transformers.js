@@ -2,6 +2,7 @@
 
 const Promise = require('bluebird')
 const joi = require('util/joi')
+const _ = require('lodash')
 
 const schemas = require('./schemas')
 const errors = require('./errors')
@@ -32,6 +33,11 @@ module.exports = class Transformers {
 
   static servicePort(ports) {
     return ports.map(port => {
+      if (_.isPlainObject(port)) {
+        return Object.assign({
+          name: 'http'
+        }, port)
+      }
       return {
         name: 'http',
         port
