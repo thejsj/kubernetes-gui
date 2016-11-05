@@ -8,10 +8,10 @@ const app = express()
 const buildRouter = require('http/build')
 const deploymentRouter = require('http/deployment')
 
-app.use(bodyParser.json({ type: 'application/*+json' }))
+app.use(bodyParser.json())
 
-app.use('/deployment', deploymentRouter)
-app.use('/build', buildRouter)
+app.use('/deployment', deploymentRouter.getRouter())
+app.use('/build', buildRouter.getRouter())
 
 const healthRoute = function(req, res){
   res.send('Its always sunny in Philadelhpia')
