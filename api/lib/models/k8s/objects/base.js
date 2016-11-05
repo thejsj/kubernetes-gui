@@ -32,7 +32,6 @@ module.exports = class BaseObject {
     payload.namespace = payload.namespace || 'default'
     return this[_transformer_](payload)
     .then(json => {
-      console.log('json', json)
       return Promise.fromCallback(cb => {
         request({
           url: this[getUrl]({ namespace: payload.namespace }),
