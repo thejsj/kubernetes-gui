@@ -23,11 +23,9 @@ module.exports = class BaseRouter {
   }
 
   static errorHandler (req, res, error) {
-    console.log('errorHandler')
-    console.log(!!req, !!res, !!error, error, error.toString())
     log.trace({ error }, 'errorHandler')
     // TODO: Add better error handling
-    return res.status(400).json({ error })
+    return res.status(400).json({ error: error.toString() })
   }
 
   static buildRoute(func, schema) {
@@ -35,7 +33,7 @@ module.exports = class BaseRouter {
       return this.validateRequest(req, schema)
         .then(validatedReq => func(validatedReq))
         .then(this.responseHandler.bind(this, req, res))
-        .catch(this.errorHandler.bind(this, req, res))
+        .catch(err => this.errorHandler(req, res, err))
     }
   }
 

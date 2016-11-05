@@ -9,13 +9,16 @@ const router = express.Router()
 const k8s = require('models/k8s')
 const log = require('util/log')
 const BaseRouter = require('http/base')
+const Build = require('models/build')
 
 const getSchema = joi.object({}).unknown()
 
 const postSchema = joi.object({
   body: joi.object({
-    name: joi.string().required(),
-    image: joi.string().required(),
+    build: joi.object({
+      id: joi.number().required()
+    }).unknown().required(),
+    // TODO: Default should be exposed ports in container
     port: joi.number().default(80)
   }).required().unknown()
 }).unknown()
@@ -47,15 +50,25 @@ module.exports = class DeploymentRouter extends BaseRouter {
 
   static post (validatedReq) {
     // TODO: Switch this to a  `deployment` once API is updated
-    const name = validatedReq.body.name
+    const buildId = validatedReq.body.build.id
     log.info({ validatedReq }, 'Create replication controller')
-    return k8s.replicationController.create({
-      name,
-      image: validatedReq.body.image,
-      containerPort: validatedReq.body.port
+    const name = `build-${buildId}`
+    return Build.where({ id: buildId }).fetch()
+    .then(build => {
+      log.trace({ build: build.toJSON() }, 'Build found')
+      return k8s.replicationController.create({
+        name,
+        image: build.get('image_name'),
+        containerPort: validatedReq.body.port
+      })
     })
     .then(replicationController => {
-      const opts = { name: `${name}-service`, selector: { name }, ports: [ { port: 6767, targetPort: validatedReq.body.port } ] }
+      const opts = {
+        name: `${name}-service`,
+        selector: { name },
+        ports: [ { port: 6767, targetPort: validatedReq.body.port } ],
+        externalIPs: [process.env.DOCKER_HOST_IP]
+      }
       log.trace({ replicationController, opts }, 'Replication controller created. Create service')
       return k8s.service.create(opts)
       .then(service => {

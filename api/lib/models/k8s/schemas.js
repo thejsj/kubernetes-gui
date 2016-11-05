@@ -37,7 +37,7 @@ const podSpec = joi.object({
 const serviceSpec = joi.object({
   selector: joi.object().required(),
   ports: servicePortsArray.required(),
-  externalIPs: joi.array().items(port)
+  externalIPs: joi.array()
 }).label('Service Spec')
 
 const replicationControllerSpec = joi.object({
