@@ -3,6 +3,7 @@
 const Promise = require('bluebird')
 const request = require('request')
 const joi = require('joi')
+const debug = require('debug')('k8s:objects:base')
 
 const errors = require('../errors')
 
@@ -70,19 +71,27 @@ module.exports = class BaseObject {
 
   static [getUrl] ({ namespace }) {
     const url = `http://${process.env.KUBERNETES_API_PROXY_URL}/api/${this[_version_]()}/namespaces/${namespace}/${this[_urlName_]()}`
-    console.log(url)
+    debug('getUrl %s', url)
     return url
   }
 
   static [responseHandler] (res) {
+    debug('repsonseHander start')
+    let response
     if (typeof res.body === 'string') {
-      let response = { err: res.body }
+      response = { err: res.body }
       try {
         response = JSON.parse(res.body)
       } catch (err) {}
-      return response
+    } else {
+      response = res.body
     }
-    return res.body
+    if (response.code && response.code >= 400) {
+      debug(`repsonseHander throw error: ${response.code}, ${response.message}, %s`, JSON.stringify(response))
+      throw new Error(`Kubernetes Error: ${response.message}`, response)
+    }
+    debug(`repsonseHander response: %s`, JSON.stringify(response))
+    return response
   }
 
   static validatePreTransform (value, schema) {
@@ -100,5 +109,7 @@ module.exports = class BaseObject {
 module.exports.symbols = {
   _name_,
   _version_,
-  _transformer_
+  _transformer_,
+  _urlName_,
+  getUrl
 }

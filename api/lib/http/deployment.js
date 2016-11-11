@@ -49,31 +49,30 @@ module.exports = class DeploymentRouter extends BaseRouter {
   }
 
   static post (validatedReq) {
-    // TODO: Switch this to a  `deployment` once API is updated
     const buildId = validatedReq.body.build.id
-    log.info({ validatedReq }, 'Create replication controller')
+    log.info({ validatedReq }, 'Create deployment')
     const name = `build-${buildId}`
     return Build.where({ id: buildId }).fetch()
     .then(build => {
       log.trace({ build: build.toJSON() }, 'Build found')
-      return k8s.replicationController.create({
+      return k8s.deployment.create({
         name,
         image: build.get('image_name'),
         containerPort: validatedReq.body.port
       })
     })
-    .then(replicationController => {
+    .then(deployment => {
       const opts = {
         name: `${name}-service`,
         selector: { name },
         ports: [ { port: 6767, targetPort: validatedReq.body.port } ],
         externalIPs: [process.env.DOCKER_HOST_IP]
       }
-      log.trace({ replicationController, opts }, 'Replication controller created. Create service')
+      log.trace({ deployment, opts }, 'Deployment created. Create service')
       return k8s.service.create(opts)
       .then(service => {
-        log.trace({ service }, 'RC and service created.')
-        return { replicationController, service }
+        log.trace({ service }, 'Deployment and service created.')
+        return { deployment, service }
       })
     })
   }

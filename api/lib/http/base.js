@@ -22,10 +22,10 @@ module.exports = class BaseRouter {
     return res.status(200).json(routerResult)
   }
 
-  static errorHandler (req, res, error) {
-    log.trace({ error }, 'errorHandler')
+  static errorHandler (req, res, err) {
+    log.trace({ message: err.toString(), err }, 'errorHandler')
     // TODO: Add better error handling
-    return res.status(400).json({ error: error.toString() })
+    return res.status(400).json({ error: err.toString() })
   }
 
   static buildRoute(func, schema) {

@@ -92,4 +92,20 @@ module.exports = class Transformers {
     return Transformers.validate(value, schemas.replicationController)
   }
 
+  static deployment ({ name, namespace, labels, replicas, image, containerPort }) {
+    const value = {
+      metadata: Transformers.metadata({ name, namespace, labels }),
+      spec: {
+        replicas,
+        template: {
+          metadata: Transformers.metadata({ name, namespace }),
+          spec: {
+            containers: [Transformers.container({ name, image, containerPort })]
+          }
+        }
+      }
+    }
+    return Transformers.validate(value, schemas.deployment)
+  }
+
 }
