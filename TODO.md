@@ -1,3 +1,8 @@
+1. Switch from RC to deployment
+2. Add github auth with passport
+3. Add ability to pass github repo with Dockerfile to `build` step
+
+-----
 1. Create API that does the following
   1. Create project POST /proyect
   2. Create build POST /build
